@@ -24,7 +24,16 @@ WORKDIR /slskd
 
 # Build the application
 RUN sh ./bin/build --dotnet-only --version $VERSION \
-    && sh ./bin/publish --no-prebuild --platform $TARGETPLATFORM --version $VERSION --output ../../dist/${TARGETPLATFORM}
+    && dotnet publish --configuration Release \
+	   -p:PublishSingleFile=true \
+	   -p:ReadyToRun=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:CopyOutputSymbolsToPublishDirectory=false \
+      --self-contained \
+      --runtime ${TARGETPLATFORM} \
+      --output ../../dist/${TARGETPLATFORM} \
+	&& cd ../../dist/${TARGETPLATFORM} \
+	&& ls -la .
 
 # Stage 3: runtime for running the application
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine3.20 AS slskd
@@ -77,7 +86,7 @@ VOLUME /app
 HEALTHCHECK --interval=60s --timeout=3s --start-period=5s --retries=3 CMD wget -q -O - http://localhost:${SLSKD_HTTP_PORT}/health
 
 # Copy the built application from the publish stage
-COPY --from=publish /slskd/dist/linux-musl-x64 .
+COPY --from=publish /slskd/dist/${TARGETPLATFORM} .
 
 # Expose the port the app runs on
 EXPOSE 5030
