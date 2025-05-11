@@ -31,10 +31,8 @@ RUN sh ./bin/build --dotnet-only --version $VERSION \
       -p:CopyOutputSymbolsToPublishDirectory=false \
       --self-contained \
       --runtime ${TARGETPLATFORM} \
-      -p:UseAppHost=true
-      -p:OutputPath=../../dist/${TARGETPLATFORM} \
-	&& cd ../../dist/${TARGETPLATFORM} \
-	&& ls -la .
+      -p:UseAppHost=true \
+      -p:OutputPath=../../dist/${TARGETPLATFORM}
 
 # Stage 3: runtime for running the application
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine3.20 AS slskd
