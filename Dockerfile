@@ -31,7 +31,8 @@ RUN sh ./bin/build --dotnet-only --version $VERSION \
       -p:CopyOutputSymbolsToPublishDirectory=false \
       --self-contained \
       --runtime ${TARGETPLATFORM} \
-      --output ../../dist/${TARGETPLATFORM} \
+      -p:UseAppHost=true
+      -p:OutputPath=../../dist/${TARGETPLATFORM} \
 	&& cd ../../dist/${TARGETPLATFORM} \
 	&& ls -la .
 
